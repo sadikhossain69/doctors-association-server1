@@ -33,31 +33,40 @@ async function run() {
             const booking = req.body
             const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
             const exists = await bookingCollection.findOne(query)
-            if(exists) {
-                return res.send({success: false, booking: exists})
+            if (exists) {
+                return res.send({ success: false, booking: exists })
             }
             const result = await bookingCollection.insertOne(booking)
-            res.send({success: true, result})
+            res.send({ success: true, result })
         })
 
-        app.get('/available', async(req, res) =>{
-            const date = req.query.date;
-      
-            const services = await serviceCollection.find().toArray();
-      
-            const query = {date: date};
+        app.get('/booking', async (req, res) => {
+            const patient = req.query.patient
+            const query = { patient: patient };
             const bookings = await bookingCollection.find(query).toArray();
-      
-            services.forEach(service=>{
-              const serviceBookings = bookings.filter(book => book.treatment === service.name);
-              const bookedSlots = serviceBookings.map(book => book.slot);
-              const available = service.slots.filter(slot => !bookedSlots.includes(slot));
-              service.slots = available;
+            res.send(bookings)
+        })
+
+        app.get('/available', async (req, res) => {
+            const date = req.query.date;
+
+            const services = await serviceCollection.find().toArray();
+
+            const query = { date: date };
+            const bookings = await bookingCollection.find(query).toArray();
+
+            services.forEach(service => {
+                const serviceBookings = bookings.filter(book => book.treatment === service.name);
+                const bookedSlots = serviceBookings.map(book => book.slot);
+                const available = service.slots.filter(slot => !bookedSlots.includes(slot));
+                service.slots = available;
             });
-           
-      
+
+            
+
+
             res.send(services);
-          })
+        })
     }
     finally {
 
