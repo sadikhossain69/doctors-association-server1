@@ -21,6 +21,7 @@ async function run() {
 
         const serviceCollection = client.db('doctors_association').collection('services')
         const bookingCollection = client.db('doctors_association').collection('bookings')
+        const userCollection = client.db('doctors_association').collection('users')
 
         app.get('/service', async (req, res) => {
             const query = {}
@@ -62,7 +63,17 @@ async function run() {
                 service.slots = available;
             });
 
-            
+            app.put('/user/:email', async (req, res) => {
+                const email = req.params.email
+                const user = req.body
+                const filter = { filter: filter }
+                const options = { upsert: true }
+                const updateDoc = {
+                    $set: user,
+                };
+                const result = await userCollection.updateOne(filter, updateDoc, options)
+                res.send(result)
+            })
 
 
             res.send(services);
