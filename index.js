@@ -6,6 +6,7 @@ const app = express()
 const port = process.env.PORT || 5000
 require('dotenv').config()
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 app.use(cors())
 app.use(express.json())
@@ -43,6 +44,8 @@ async function run() {
 
         app.get('/booking', async (req, res) => {
             const patient = req.query.patient
+            const authorization = req.headers.authorization
+            console.log( 'auth header',authorization)
             const query = { patient: patient };
             const bookings = await bookingCollection.find(query).toArray();
             res.send(bookings)
@@ -65,17 +68,18 @@ async function run() {
             res.send(services);
         })
 
-        app.put('/user/:email', async(req, res) => {
+        app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = {
-              $set: user,
+                $set: user,
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-          })
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ result, token: token });
+        })
     }
     finally {
 
