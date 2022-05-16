@@ -26,8 +26,8 @@ function verifyJWT(req, res, next) {
             res.status(403).send({ message: 'Forbidden Access' })
         }
         req.decoded = decoded
+        next()
     })
-    next()
 }
 
 async function run() {
@@ -87,6 +87,16 @@ async function run() {
             res.send(services);
         })
 
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: {role: 'admin'},
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result); 
+        })
+
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -101,7 +111,7 @@ async function run() {
         })
 
         app.get('/user', verifyJWT, async (req, res) => {
-            const users = await userCollection.find().toArray()
+            const users = await userCollection.find().toArray() 
             res.send(users)
         })
     }
