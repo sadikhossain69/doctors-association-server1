@@ -8,11 +8,7 @@ require('dotenv').config()
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
-app.use(
-    cors({
-      origin: "*",
-    })
-  );
+app.use(cors())
 app.use(express.json())
 
 
