@@ -149,7 +149,7 @@ async function run() {
             const email = req.params?.email
             const filter = {email: email}
             const result = await doctorCollection.deleteOne(filter) 
-            res.send(result)
+            res.send(result) 
         })
     }
     finally {
