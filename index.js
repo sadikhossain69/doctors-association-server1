@@ -8,7 +8,11 @@ require('dotenv').config()
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
-app.use(cors())
+app.use(
+    cors({
+      origin: "*",
+    })
+  );
 app.use(express.json())
 
 
@@ -39,6 +43,17 @@ async function run() {
         const bookingCollection = client.db('doctors_association').collection('bookings')
         const userCollection = client.db('doctors_association').collection('users')
         const doctorCollection = client.db('doctors_association').collection('doctors')
+
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded?.email
+            const requsterAccount = await userCollection.findOne({ email: requester })
+            if (requsterAccount.role === 'admin') {
+                next()
+            }
+            else {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
+        }
 
         app.get('/service', async (req, res) => {
             const query = {}
@@ -130,9 +145,9 @@ async function run() {
             res.send(users)
         })
 
-        app.post('/doctor', async (req, res) => {
+        app.post('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
             const doctor = req.body
-            const result = await doctorCollection.insertOne(doctor)
+            const result = await doctorCollection.insertOne(doctor) 
             res.send(result)
         })
     }
