@@ -20,7 +20,7 @@ function verifyJWT(req, res, next) {
     if (!authHeader) {
         res.status(401).send({ message: 'Unauthorized Access' })
     }
-    const token = authHeader.split(' ')[1]  
+    const token = authHeader.split(' ')[1]
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
             res.status(403).send({ message: 'Forbidden Access' })
@@ -53,7 +53,7 @@ async function run() {
 
         app.get('/service', async (req, res) => {
             const query = {}
-            const cursor = serviceCollection.find(query).project({name: 1})
+            const cursor = serviceCollection.find(query).project({ name: 1 })
             const result = await cursor.toArray()
             res.send(result)
         })
@@ -99,21 +99,21 @@ async function run() {
             res.send(services);
         })
 
-        app.get('/admin/:email', async(req, res) => {
+        app.get('/admin/:email', async (req, res) => {
             const email = req.params.email
-            const user = await userCollection.findOne({email: email})
+            const user = await userCollection.findOne({ email: email })
             const isAdmin = user.role === 'admin'
-            res.send({admin: isAdmin})
+            res.send({ admin: isAdmin })
         })
 
         app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email;
-                const filter = { email: email };
-                const updateDoc = {
-                    $set: { role: 'admin' },
-                };
-                const result = await userCollection.updateOne(filter, updateDoc);
-                res.send(result);
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
         app.put('/user/:email', async (req, res) => {
@@ -141,16 +141,15 @@ async function run() {
 
         app.post('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
             const doctor = req.body
-            const result = await doctorCollection.insertOne(doctor) 
+            const result = await doctorCollection.insertOne(doctor)
             res.send(result)
         })
 
         app.delete('/doctor/:email', verifyJWT, verifyAdmin, async (req, res) => {
-            const email = req.params?.email
-            console.log(email);
-            const filter = {email: email}
-            const result = await doctorCollection.deleteOne(filter) 
-            res.send(result) 
+            const email = req.params?.email;
+            const filter = { email: email };
+            const result = await doctorCollection.deleteOne(filter);
+            res.send(result);
         })
     }
     finally {
