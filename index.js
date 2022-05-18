@@ -103,7 +103,7 @@ async function run() {
                 const available = service.slots.filter(slot => !bookedSlots.includes(slot));
                 service.slots = available;
             });
-            res.send(services);
+            res.send(services); 
         })
 
         app.get('/admin/:email', async (req, res) => {
