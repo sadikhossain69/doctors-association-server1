@@ -40,6 +40,7 @@ async function run() {
         const bookingCollection = client.db('doctors_association').collection('bookings')
         const userCollection = client.db('doctors_association').collection('users')
         const doctorCollection = client.db('doctors_association').collection('doctors')
+        const paymentCollection = client.db('doctors_association').collection('payments')
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded?.email
@@ -102,6 +103,22 @@ async function run() {
             const query = {_id: ObjectId(id)}
             const booking = await bookingCollection.findOne(query)
             res.send(booking)
+        })
+
+        app.patch('/booking/:id', verifyJWT, async(req, res) => {
+            const id = req.params.id
+            const payment = req.body
+            const filter = {_id: ObjectId(id)}
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                    
+                }
+            }
+            const updatedBooking = await bookingCollection.updateOne(filter, updateDoc)
+            const result = await paymentCollection.insertOne(payment)
+            res.send(updatedBooking)
         })
 
         app.get('/available', async (req, res) => {
