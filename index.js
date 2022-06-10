@@ -41,6 +41,7 @@ async function run() {
         const userCollection = client.db('doctors_association').collection('users')
         const doctorCollection = client.db('doctors_association').collection('doctors')
         const paymentCollection = client.db('doctors_association').collection('payments')
+        const projectCollection = client.db('doctors_association').collection('projects')
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded?.email
@@ -189,6 +190,18 @@ async function run() {
             const filter = { email: email };
             const result = await doctorCollection.deleteOne(filter);
             res.send(result);
+        })
+
+        app.get('/projects', async(req, res) => {
+            const projects = await projectCollection.find().toArray()
+            res.send(projects)
+        })
+
+        app.get('/projects/:id', async(req, res) => {
+            const id = req.params.id
+            const filter = {_id: ObjectId(id)}
+            const product = await projectCollection.findOne(filter)
+            res.send(product)
         })
     }
     finally {
